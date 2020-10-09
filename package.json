@@ -1,0 +1,19 @@
+{
+  "name": "game-of-three-takeaway",
+  "version": "0.0.1",
+  "description": "Takeaway.com coding challenge",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nikoloz Razmadze <nikoloz@razmadze.me>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ralozkolya/game-of-three-takeaway.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ralozkolya/game-of-three-takeaway/issues"
+  },
+  "homepage": "https://github.com/ralozkolya/game-of-three-takeaway#readme"
+}
