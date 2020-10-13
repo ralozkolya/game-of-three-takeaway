@@ -41,7 +41,7 @@ export default class RoomList extends Component<IRoomListProps, IRoomListState> 
               ))
             }
           </ul> :
-          <h4>No rooms available</h4>
+          <h4>No available users</h4>
         }
       </>
     );
