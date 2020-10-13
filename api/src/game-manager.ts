@@ -2,62 +2,101 @@ import { Server } from 'http';
 import * as IO from 'socket.io';
 import ShortUniqueId from 'short-unique-id';
 
+interface IMove {
+  start: number;
+  difference: number;
+  result: number;
+}
+
 const uid = new ShortUniqueId();
 
-const sockets: Map<string, IO.Socket> = new Map();
-const rooms: string[] = [];
-
-let io: IO.Server;
 let gameManagerInstance: GameManager = null;
 
 class GameManager {
 
-    constructor(server: Server) {
-        io = IO(server);
-        io.on('connection', this.onConnect);
-    }
+  private io: IO.Server;
 
-    private onConnect = (socket: IO.Socket) => {
-        sockets.set(socket.id, socket);
+  constructor(server: Server) {
+    this.io = IO(server);
+    this.io.on('connection', socket => this.onConnect(socket));
+  }
 
-        socket.emit('rooms', rooms);
-        console.log('connected ' + socket.id);
-        console.log(`Sockets live: ${sockets.size}`);
+  private onConnect(socket: IO.Socket): void {
 
-        socket.on('disconnect', () => {
-            this.leaveRoom(socket);
-            sockets.delete(socket.id);
-            this.updateRooms();
-            console.log(`Sockets left: ${sockets.size}`);
-        });
+    console.log(`Connected: ${socket.id}`);
 
-        socket.on('create-room', () => {
-            this.leaveRoom(socket);
-            const newRoom = uid();            
-            (socket as any).room = newRoom;
-            this.updateRooms(newRoom);
-        });
-    };
+    socket.on('disconnect', () => this.onDisconnect(socket));
+    socket.on('disconnecting', () => this.beforeDisconnect(socket));
 
-    private updateRooms(newRoom?: string): void {
+    socket.on('create-room', () => this.onCreateRoom(socket));
+    socket.on('join-room', room => this.onJoinRoom(socket, room));
+    socket.on('move', (move: IMove) => this.onMove(socket, move));
 
-        if (newRoom) {
-            rooms.push(newRoom);
-        }
+    this.updateRooms();
+  };
 
-        io.emit('rooms', rooms);
-    }
+  private onCreateRoom(socket: IO.Socket): void {
+    this.leaveExistingRooms(socket);
+    // Auto-generated ID is guaranteed not to contain a dot,
+    // so it's safe to differentiate based on the room ID
+    const room = `.${uid()}`;
+    socket.join(room);
+    socket.emit('joined-room', room);
+    this.updateRooms();
+  };
 
-    private leaveRoom(socket: IO.Socket): void {
-        const existingRoom = (socket as any).room;
+  private onJoinRoom(socket: IO.Socket, room: string): void {
+    // TODO: Only allow 2 players
+    this.leaveExistingRooms(socket);
+    socket.join(room);
+    this.updateRooms();
+    this.io.to(room).emit('start');
+    this.getOtherSocket(socket, room).emit('init');
+  }
 
-        if (existingRoom) {
-            socket.leave(existingRoom);
-            rooms.splice(rooms.indexOf(existingRoom), 1);
-        }
-    }
+  private onMove(socket: IO.Socket, move: IMove): void {
+    // TODO: leave room after finished game
+    socket.to(this.getRoom(socket)).emit('move', move);
+  }
+
+  private beforeDisconnect(socket: IO.Socket): void {
+    Object.keys(socket.rooms).forEach(room => this.io.to(room).emit('reset'));
+  }
+
+  private onDisconnect(socket: IO.Socket): void {
+    this.updateRooms();
+    console.log(`Disconnected: ${socket.id}`);
+  }
+
+  private updateRooms(): void {
+    this.io.emit('rooms', this.getRooms(this.io));
+  }
+
+  private getRooms(io: IO.Server): string[] {
+    return Object.entries(io.sockets.adapter.rooms)
+      .filter(([key, value]) => key.startsWith('.') && value.length < 2)
+      .map(([key]) => key);
+  }
+
+  private leaveExistingRooms(socket: IO.Socket): void {
+    Object.keys(socket.rooms).forEach(room => {
+      if (room.startsWith('.')) {
+        socket.leave(room);
+      }
+    });
+  }
+
+  private getOtherSocket(socket: IO.Socket, room: string): IO.Socket {
+    const id = Object.keys(this.io.sockets.adapter.rooms[room].sockets)
+      .filter(id => socket.id === id)[0];
+    return this.io.sockets.sockets[id];
+  }
+
+  private getRoom(socket: IO.Socket): string {
+    return Object.keys(socket.rooms).find(room => room.startsWith('.'));
+  }
 }
 
 export function initGameManager(server: Server): GameManager {
-    return gameManagerInstance = gameManagerInstance || new GameManager(server);
+  return gameManagerInstance = gameManagerInstance || new GameManager(server);
 }

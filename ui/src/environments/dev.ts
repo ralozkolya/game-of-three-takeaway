@@ -1,6 +1,6 @@
-import Environment from "./env.types";
+import IEnvironment from "./env.types";
 
-const env: Environment = {
+const env: IEnvironment = {
     URL: 'http://localhost:3000'
 };
 

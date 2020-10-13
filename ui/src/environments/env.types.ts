@@ -1,3 +1,3 @@
-export default interface Environment {
+export default interface IEnvironment {
     URL: string;
 };

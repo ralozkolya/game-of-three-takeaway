@@ -1,0 +1,13 @@
+.move {
+    padding: 1rem;
+    border: solid 1px gray;
+    float: right;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #aaa;
+}
+
+.move-container:nth-child(odd) > .move{
+    float: left;
+    background-color: #777;
+    color: #eee;
+}

@@ -1,7 +1,7 @@
 import dev from './dev';
-import Environment from './env.types';
+import IEnvironment from './env.types';
 
-let env: Environment;
+let env: IEnvironment;
 
 // Update once other environments are added
 env = dev;

@@ -3,17 +3,18 @@ import React, { Component } from 'react';
 import WSService from '../services/ws-service';
 
 import RoomList from './RoomList';
+import Game from './Game';
 
-interface AppState {
-  messages: string[];
+interface IAppState {
   rooms: string[];
+  inGame: boolean;
 }
 
-export default class App extends Component {
+export default class App extends Component<any, IAppState> {
 
-  state: AppState = {
-    messages: [],
-    rooms: []
+  state = {
+    rooms: [],
+    inGame: false,
   };
 
   socket: SocketIOClient.Socket | null = null;
@@ -22,25 +23,51 @@ export default class App extends Component {
 
     this.socket = WSService.init();
 
-    this.socket.on('message', (message: string) => {
-      this.setState({ messages: [ ...this.state.messages, message ] });
-    });
-
     this.socket.on('rooms', (rooms: string[]) => {
       this.setState({ rooms });
     });
+
+    this.socket.on('reset', this.reset);
+
+    this.socket.on('start', () => {
+      this.setState({ inGame: true });
+    });
+
+    this.socket.on('disconnect', this.reset);
   }
 
-  createRoom = () => {
-    this.socket?.emit('create-room');
+  reset = (): void => {
+    this.setState({ inGame: false })
   };
 
   render(): JSX.Element {
     return (
       <>
-        <div className="container">
-          <RoomList rooms={this.state.rooms} />
-          <button onClick={this.createRoom} className="btn btn-success">Create a new room</button>
+        <div className="container mt-5">
+          <div className="row">
+            <div className="col-md-8">
+              {
+                this.state.inGame ?
+                <Game onFinish={ this.reset } /> :
+                <>
+                  <h3>Choose a game from the list</h3>
+                  <button
+                    onClick={ () => {} }
+                    className="btn btn-secondary mt-3">
+                    Or play against the computer
+                  </button>
+                </>
+              }
+            </div>
+            <div className="col-md-4">
+              <RoomList rooms={ this.state.rooms } />
+              <button disabled={this.state.inGame}
+                onClick={ () => WSService.createRoom() }
+                className="btn btn-success mt-3">
+                Create a new room
+              </button>
+            </div>
+          </div>
         </div>
       </>
     );
