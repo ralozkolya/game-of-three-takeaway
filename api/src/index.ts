@@ -8,6 +8,7 @@ const app = express();
 const server = createServer(app);
 
 app.use(cors());
+app.use(express.static('public'));
 
 initGameManager(server);
 
