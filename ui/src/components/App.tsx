@@ -37,7 +37,7 @@ export default class App extends Component<any, IAppState> {
   }
 
   reset = (): void => {
-    this.setState({ inGame: false })
+    this.setState({ inGame: false });
   };
 
   render(): JSX.Element {
@@ -45,7 +45,7 @@ export default class App extends Component<any, IAppState> {
       <>
         <div className="container mt-5">
           <div className="row">
-            <div className="col-md-8">
+            <div className="col-md-8 mb-3">
               {
                 this.state.inGame ?
                 <Game onFinish={ this.reset } /> :
@@ -59,7 +59,7 @@ export default class App extends Component<any, IAppState> {
                 </>
               }
             </div>
-            <div className="col-md-4">
+            <div className="col-md-4 mb-3">
               <RoomList rooms={ this.state.rooms } />
               <button disabled={this.state.inGame}
                 onClick={ () => WSService.createRoom() }

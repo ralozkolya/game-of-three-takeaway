@@ -25,11 +25,9 @@ export default class Game extends Component<IGameProps, IGameState> {
 
   componentDidMount(): void {
 
-    console.log(this.state);
-
     this.socket = WSService.init();
 
-    this.socket.on('init', this.startGame);
+    this.socket.on('init', this.firstMove);
 
     this.socket.on('move', (move: IMove) => {
 
@@ -38,13 +36,25 @@ export default class Game extends Component<IGameProps, IGameState> {
       if (move.result !== 1) {
         this.makeMove(move.result);
       } else {
-        this.setState({ finished: true });
+        this.finish();
       }
     });
+
+    this.socket.on('start', this.startGame);
+  }
+
+  componentWillUnmount(): void {
+    this.socket?.off('move');
+    this.socket?.off('init');
+    this.socket?.off('start', this.startGame);
   }
 
   startGame = (): void => {
-    const start = Math.floor(Math.random() * 1000);
+    this.setState({ moves: [], finished: false });
+  };
+
+  firstMove = (): void => {
+    const start = Math.floor(Math.random() * 990 + 10);
     const move = { start, result: start };
     WSService.sendMove(move);
     this.setState({ moves: [ move ] });
@@ -65,8 +75,12 @@ export default class Game extends Component<IGameProps, IGameState> {
     WSService.sendMove(nextMove);
 
     if (nextMove.result === 1) {
-      this.setState({ finished: true });
+      this.finish();
     }
+  };
+
+  finish = () => {
+    this.setState({ finished: true });
   };
 
   render(): JSX.Element {

@@ -10,9 +10,9 @@ interface IMove {
 
 const uid = new ShortUniqueId();
 
-let gameManagerInstance: GameManager = null;
+let instance: GameService = null;
 
-class GameManager {
+class GameService {
 
   private io: IO.Server;
 
@@ -40,13 +40,15 @@ class GameManager {
     // Auto-generated ID is guaranteed not to contain a dot,
     // so it's safe to differentiate based on the room ID
     const room = `.${uid()}`;
-    socket.join(room);
-    socket.emit('joined-room', room);
-    this.updateRooms();
+    socket.join(room, () => {
+      socket.emit('joined-room', room);
+      this.updateRooms();
+    });
   };
 
   private onJoinRoom(socket: IO.Socket, room: string): void {
     // TODO: Only allow 2 players
+    console.log('beforedisconnect');
     this.leaveExistingRooms(socket);
     socket.join(room);
     this.updateRooms();
@@ -57,6 +59,12 @@ class GameManager {
   private onMove(socket: IO.Socket, move: IMove): void {
     // TODO: leave room after finished game
     socket.to(this.getRoom(socket)).emit('move', move);
+
+    if (move.result <= 1) {
+      const room = this.getRoom(socket);
+      this.leaveExistingRooms(this.getOtherSocket(socket, room));
+      this.leaveExistingRooms(socket);
+    }
   }
 
   private beforeDisconnect(socket: IO.Socket): void {
@@ -88,7 +96,7 @@ class GameManager {
 
   private getOtherSocket(socket: IO.Socket, room: string): IO.Socket {
     const id = Object.keys(this.io.sockets.adapter.rooms[room].sockets)
-      .filter(id => socket.id === id)[0];
+      .filter(id => socket.id !== id)[0];
     return this.io.sockets.sockets[id];
   }
 
@@ -97,6 +105,6 @@ class GameManager {
   }
 }
 
-export function initGameManager(server: Server): GameManager {
-  return gameManagerInstance = gameManagerInstance || new GameManager(server);
+export function initGameService(server: Server): GameService {
+  return instance = instance || new GameService(server);
 }
