@@ -8,6 +8,7 @@ export enum Event {
     JOIN_ROOM = 'join-room',
     JOINED_ROOM = 'joined-room',
     CONNECTION = 'connection',
+    CONNECT = 'connect',
     DISCONNECT = 'disconnect',
     DISCONNECTING = 'disconnecting',
 }
