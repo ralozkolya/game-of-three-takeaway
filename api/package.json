@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.js",
   "scripts": {
-    "start": "concurrently \"tsc -w\" \"node-dev dist/index.js\""
+    "start": "concurrently \"tsc -w\" \"node-dev dist/index.js\"",
+    "build": "tsc"
   },
   "author": "Nikoloz Razmadze <nikoloz@razmadze.me>",
   "license": "ISC",

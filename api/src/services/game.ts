@@ -99,7 +99,7 @@ class GameService {
 
   private getOtherSocket(socket: IO.Socket, room: string): IO.Socket {
     const id = Object.keys(this.io.sockets.adapter.rooms[room].sockets)
-      .filter(id => socket.id !== id)[0];
+      .find(id => socket.id !== id);
     return this.io.sockets.sockets[id];
   }
 
