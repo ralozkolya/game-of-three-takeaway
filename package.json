@@ -40,7 +40,8 @@
     "dev:ui": "react-scripts start",
     "build:api": "tsc -p tsconfig-api.json",
     "build:ui": "react-scripts build",
-    "build": "concurrently \"react-scripts build\" \"tsc -p tsconfig-api.json\""
+    "build": "concurrently \"react-scripts build\" \"tsc -p tsconfig-api.json\"",
+    "build:prod": "REACT_APP_ENV=prod concurrently \"react-scripts build\" \"tsc -p tsconfig-api.json\""
   },
   "eslintConfig": {
     "extends": "react-app"
