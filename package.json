@@ -35,10 +35,12 @@
     "typescript": "^3.9.7"
   },
   "scripts": {
-    "start": "npm run build:api && concurrently \"react-scripts start\" \"npm run dev:api\"",
+    "start": "npm run build:api && concurrently \"npm run dev:ui\" \"npm run dev:api\"",
     "dev:api": "concurrently \"npm run build:api\" \"node-dev dist/api/index.js\"",
+    "dev:ui": "react-scripts start",
     "build:api": "tsc -p tsconfig-api.json",
-    "build": "concurrently \"react-scripts build\" \"npm run build:api\""
+    "build:ui": "react-scripts build",
+    "build": "concurrently \"npm run build:ui\" \"npm run build:api\""
   },
   "eslintConfig": {
     "extends": "react-app"
