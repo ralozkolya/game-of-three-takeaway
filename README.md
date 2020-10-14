@@ -40,3 +40,6 @@ To build:
 `npm run build`
 
 The entry point will be located in `dist/api/index.js`
+
+## Demo
+You can check it out at [https://takeaway.razmadze.me/](https://takeaway.razmadze.me/)
