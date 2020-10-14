@@ -1,6 +1,8 @@
+type Difference = -1 | 0 | 1;
+
 export interface IMove {
   start: number;
-  difference?: number;
+  difference?: Difference;
   result: number;
 }
 

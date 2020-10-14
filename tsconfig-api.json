@@ -1,5 +1,5 @@
 {
-    "include": ["src/**.ts"],
+    "include": ["api/**.ts"],
     "compilerOptions": {
         "target": "ES2015",
         "module": "CommonJS",

@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 
-import WSService, { IMove } from '../services/ws-service';
+import WSService from '../services/ws-service';
 import Move from './Move';
+import { IMove, getNextMove } from '../util/move';
+import { Event } from '../enums/events';
 
 interface IGameProps {
   onFinish?: () => void;
@@ -11,8 +13,6 @@ interface IGameState {
   moves: IMove[];
   finished: boolean;
 }
-
-type Difference = -1 | 0 | 1;
 
 export default class Game extends Component<IGameProps, IGameState> {
 
@@ -27,9 +27,9 @@ export default class Game extends Component<IGameProps, IGameState> {
 
     this.socket = WSService.init();
 
-    this.socket.on('init', this.firstMove);
+    this.socket.on(Event.INIT, this.firstMove);
 
-    this.socket.on('move', (move: IMove) => {
+    this.socket.on(Event.MOVE, (move: IMove) => {
 
       this.setState({ moves: [...this.state.moves, move] });
 
@@ -40,13 +40,13 @@ export default class Game extends Component<IGameProps, IGameState> {
       }
     });
 
-    this.socket.on('start', this.startGame);
+    this.socket.on(Event.START, this.startGame);
   }
 
   componentWillUnmount(): void {
-    this.socket?.off('move');
-    this.socket?.off('init');
-    this.socket?.off('start', this.startGame);
+    this.socket?.off(Event.MOVE);
+    this.socket?.off(Event.INIT);
+    this.socket?.off(Event.START, this.startGame);
   }
 
   startGame = (): void => {
@@ -62,13 +62,7 @@ export default class Game extends Component<IGameProps, IGameState> {
 
   makeMove = (start: number): void => {
 
-    const difference = start % 3 ? (1 === start % 3 ? -1 : 1) : 0;
-
-    const nextMove: IMove = {
-      start: start,
-      difference,
-      result: (start + difference) / 3
-    };
+    const nextMove = getNextMove(start);
 
     this.setState({ moves: [...this.state.moves, nextMove] });
 

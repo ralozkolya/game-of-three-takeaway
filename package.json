@@ -1,0 +1,58 @@
+{
+  "name": "game-of-three-takeaway",
+  "version": "0.0.1",
+  "description": "Takeaway.com coding challenge",
+  "private": true,
+  "author": "Nikoloz Razmadze <nikoloz@razmadze.me>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ralozkolya/game-of-three-takeaway.git"
+  },
+  "dependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "@types/cors": "^2.8.8",
+    "@types/express": "^4.17.8",
+    "@types/jest": "^24.9.1",
+    "@types/node": "^12.12.67",
+    "@types/react": "^16.9.52",
+    "@types/react-dom": "^16.9.8",
+    "@types/socket.io": "^2.1.11",
+    "@types/socket.io-client": "^1.4.34",
+    "bootstrap": "^4.5.2",
+    "concurrently": "^5.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "node-dev": "^6.0.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-scripts": "3.4.3",
+    "short-unique-id": "^3.0.4",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.1",
+    "typescript": "^3.9.7"
+  },
+  "scripts": {
+    "start": "npm run build:api && concurrently \"react-scripts start\" \"npm run dev:api\"",
+    "dev:api": "concurrently \"npm run build:api\" \"node-dev dist/api/index.js\"",
+    "build:api": "tsc -p tsconfig-api.json",
+    "build": "concurrently \"react-scripts build\" \"npm run build:api\""
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

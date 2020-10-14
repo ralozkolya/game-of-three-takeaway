@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { IMove } from '../services/ws-service';
+import { IMove } from '../util/move';
 
 import './Move.css';
 

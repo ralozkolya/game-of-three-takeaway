@@ -4,6 +4,7 @@ import WSService from '../services/ws-service';
 
 import RoomList from './RoomList';
 import Game from './Game';
+import { Event } from '../enums/events';
 
 interface IAppState {
   rooms: string[];
@@ -23,17 +24,17 @@ export default class App extends Component<any, IAppState> {
 
     this.socket = WSService.init();
 
-    this.socket.on('rooms', (rooms: string[]) => {
+    this.socket.on(Event.ROOMS, (rooms: string[]) => {
       this.setState({ rooms });
     });
 
-    this.socket.on('reset', this.reset);
+    this.socket.on(Event.RESET, this.reset);
 
-    this.socket.on('start', () => {
+    this.socket.on(Event.START, () => {
       this.setState({ inGame: true });
     });
 
-    this.socket.on('disconnect', this.reset);
+    this.socket.on(Event.DISCONNECT, this.reset);
   }
 
   reset = (): void => {
@@ -53,8 +54,8 @@ export default class App extends Component<any, IAppState> {
                   <h3>Choose a game from the list</h3>
                   <button
                     onClick={ () => WSService.startGame() }
-                    className="btn btn-secondary mt-3">
-                    Or play against the computer
+                    className="btn btn-primary mt-3">
+                    Or play against the server
                   </button>
                 </>
               }

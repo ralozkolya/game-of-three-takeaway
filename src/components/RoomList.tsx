@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import ListItem from './ListItem';
 import WSService from '../services/ws-service';
+import { Event } from '../enums/events';
 
 interface IRoomListProps {
   rooms: string[];
@@ -23,7 +24,7 @@ export default class RoomList extends Component<IRoomListProps, IRoomListState> 
 
     this.socket = WSService.init();
 
-    this.socket.on('joined-room', (room: string) => {
+    this.socket.on(Event.JOINED_ROOM, (room: string) => {
       this.setState({ room });
     });
   }

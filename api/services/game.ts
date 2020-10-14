@@ -2,7 +2,8 @@ import { Server } from 'http';
 import * as IO from 'socket.io';
 import ShortUniqueId from 'short-unique-id';
 
-import { IMove, getNextMove } from '../util/move';
+import { IMove, getNextMove } from '../../src/util/move';
+import { Event } from '../../src/enums/events';
 
 const uid = new ShortUniqueId();
 
@@ -14,21 +15,21 @@ class GameService {
 
   constructor(server: Server) {
     this.io = IO(server);
-    this.io.on('connection', socket => this.onConnect(socket));
+    this.io.on(Event.CONNECTION, socket => this.onConnect(socket));
   }
 
   private onConnect(socket: IO.Socket): void {
 
     console.log(`Connected: ${socket.id}`);
 
-    socket.on('disconnect', () => this.onDisconnect(socket));
-    socket.on('disconnecting', () => this.beforeDisconnect(socket));
+    socket.on(Event.DISCONNECT, () => this.onDisconnect(socket));
+    socket.on(Event.DISCONNECTING, () => this.beforeDisconnect(socket));
 
-    socket.on('create-room', () => this.onCreateRoom(socket));
-    socket.on('join-room', room => this.onJoinRoom(socket, room));
-    socket.on('move', (move: IMove) => this.onMove(socket, move));
+    socket.on(Event.CREATE_ROOM, () => this.onCreateRoom(socket));
+    socket.on(Event.JOIN_ROOM, room => this.onJoinRoom(socket, room));
+    socket.on(Event.MOVE, (move: IMove) => this.onMove(socket, move));
     
-    socket.on('start', () => this.onStart(socket));
+    socket.on(Event.START, () => this.onStart(socket));
 
     this.updateRooms();
   };
@@ -39,7 +40,7 @@ class GameService {
     // so it's safe to differentiate based on the room ID
     const room = `.${uid()}`;
     socket.join(room, () => {
-      socket.emit('joined-room', room);
+      socket.emit(Event.JOINED_ROOM, room);
       this.updateRooms();
     });
   };
@@ -54,8 +55,8 @@ class GameService {
     this.leaveExistingRooms(socket);
     socket.join(room);
     this.updateRooms();
-    this.io.to(room).emit('start');
-    this.getOtherSocket(socket, room).emit('init');
+    this.io.to(room).emit(Event.START);
+    this.getOtherSocket(socket, room).emit(Event.INIT);
   }
 
   private onMove(socket: IO.Socket, move: IMove): void {
@@ -70,13 +71,13 @@ class GameService {
   private handleSinglePlayer(socket: IO.Socket, move: IMove): void {
     if (move.result > 1) {
       const nextMove = getNextMove(move.result);
-      socket.emit('move', nextMove);
+      socket.emit(Event.MOVE, nextMove);
     }
   }
 
   private handleMultiplayer(socket: IO.Socket, move: IMove): void {
 
-    socket.to(this.getRoom(socket)).emit('move', move);
+    socket.to(this.getRoom(socket)).emit(Event.MOVE, move);
 
     if (move.result <= 1) {
       const room = this.getRoom(socket);
@@ -86,8 +87,10 @@ class GameService {
   }
 
   private onStart(socket: IO.Socket): void {
-    socket.emit('start');
-    socket.emit('init');
+    this.leaveExistingRooms(socket);
+    this.updateRooms();
+    socket.emit(Event.START);
+    socket.emit(Event.INIT);
   }
 
   private beforeDisconnect(socket: IO.Socket): void {
@@ -100,7 +103,7 @@ class GameService {
   }
 
   private updateRooms(): void {
-    this.io.emit('rooms', this.getRooms(this.io));
+    this.io.emit(Event.ROOMS, this.getRooms(this.io));
   }
 
   private getRooms(io: IO.Server): string[] {
