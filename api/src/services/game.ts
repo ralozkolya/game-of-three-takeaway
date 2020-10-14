@@ -2,11 +2,7 @@ import { Server } from 'http';
 import * as IO from 'socket.io';
 import ShortUniqueId from 'short-unique-id';
 
-interface IMove {
-  start: number;
-  difference: number;
-  result: number;
-}
+import { IMove, getNextMove } from '../util/move';
 
 const uid = new ShortUniqueId();
 
@@ -31,6 +27,8 @@ class GameService {
     socket.on('create-room', () => this.onCreateRoom(socket));
     socket.on('join-room', room => this.onJoinRoom(socket, room));
     socket.on('move', (move: IMove) => this.onMove(socket, move));
+    
+    socket.on('start', () => this.onStart(socket));
 
     this.updateRooms();
   };
@@ -61,6 +59,23 @@ class GameService {
   }
 
   private onMove(socket: IO.Socket, move: IMove): void {
+
+    if (this.getRoom(socket)) {
+      return this.handleMultiplayer(socket, move);
+    }
+    
+    this.handleSinglePlayer(socket, move);
+  }
+
+  private handleSinglePlayer(socket: IO.Socket, move: IMove): void {
+    if (move.result > 1) {
+      const nextMove = getNextMove(move.result);
+      socket.emit('move', nextMove);
+    }
+  }
+
+  private handleMultiplayer(socket: IO.Socket, move: IMove): void {
+
     socket.to(this.getRoom(socket)).emit('move', move);
 
     if (move.result <= 1) {
@@ -68,6 +83,11 @@ class GameService {
       this.leaveExistingRooms(this.getOtherSocket(socket, room));
       this.leaveExistingRooms(socket);
     }
+  }
+
+  private onStart(socket: IO.Socket): void {
+    socket.emit('start');
+    socket.emit('init');
   }
 
   private beforeDisconnect(socket: IO.Socket): void {

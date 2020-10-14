@@ -33,7 +33,7 @@ export default class Game extends Component<IGameProps, IGameState> {
 
       this.setState({ moves: [...this.state.moves, move] });
 
-      if (move.result !== 1) {
+      if (move.result > 1) {
         this.makeMove(move.result);
       } else {
         this.finish();
@@ -74,7 +74,7 @@ export default class Game extends Component<IGameProps, IGameState> {
 
     WSService.sendMove(nextMove);
 
-    if (nextMove.result === 1) {
+    if (nextMove.result <= 1) {
       this.finish();
     }
   };

@@ -52,7 +52,7 @@ export default class App extends Component<any, IAppState> {
                 <>
                   <h3>Choose a game from the list</h3>
                   <button
-                    onClick={ () => {} }
+                    onClick={ () => WSService.startGame() }
                     className="btn btn-secondary mt-3">
                     Or play against the computer
                   </button>
