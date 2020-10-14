@@ -22,6 +22,21 @@ Both players should be able to play automatically without user input. One of the
 - Please share your project on GitHub and send us the link;
 - Try to be platform independent, in other words the project must be runnable easily in every environment.
 
-## Additional notes, based on correspondence
+### Additional notes, based on correspondence
 - A player can choose to either play against computer or against another player;
 - If a player choose to play against another human player, then the game does not start until both are connected/online.
+
+## Installation/Configuration
+First of all, after checking out, to install all the dependencies, run:
+
+`npm i`
+
+Then, to start the development server and watch the files for change:
+
+`npm start`
+
+To build:
+
+`npm run build`
+
+The entry point will be located in `dist/api/index.js`
