@@ -47,8 +47,12 @@ class GameService {
   };
 
   private onJoinRoom(socket: IO.Socket, room: string): void {
-    // TODO: Only allow 2 players
-    console.log('beforedisconnect');
+    
+    if (this.getRoomSockets(room) > 1) {
+      // Only 2 players can play
+      return;
+    }
+
     this.leaveExistingRooms(socket);
     socket.join(room);
     this.updateRooms();
@@ -57,7 +61,6 @@ class GameService {
   }
 
   private onMove(socket: IO.Socket, move: IMove): void {
-    // TODO: leave room after finished game
     socket.to(this.getRoom(socket)).emit('move', move);
 
     if (move.result <= 1) {
@@ -102,6 +105,10 @@ class GameService {
 
   private getRoom(socket: IO.Socket): string {
     return Object.keys(socket.rooms).find(room => room.startsWith('.'));
+  }
+
+  private getRoomSockets(room: string): number {
+    return this.io.sockets.adapter.rooms[room]?.length;
   }
 }
 
